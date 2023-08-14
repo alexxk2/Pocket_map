@@ -2,10 +2,12 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-parcelize'
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     // Navigation.SafeArgs
     id 'androidx.navigation.safeargs.kotlin'
     //Kotlin symbol processing  for Room
     id("com.google.devtools.ksp")
+
 }
 
 android {
@@ -20,6 +22,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -38,6 +41,7 @@ android {
 
     buildFeatures{
         viewBinding = true
+        buildConfig = true
     }
 }
 

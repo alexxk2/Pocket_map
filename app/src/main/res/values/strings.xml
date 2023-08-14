@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Pocket map</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_placemark_button">Add placemark button</string>
+    <string name="central_pointer">Central pointer</string>
 </resources>
