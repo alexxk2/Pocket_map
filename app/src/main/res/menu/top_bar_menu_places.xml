@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/delete_all_items"
+        android:contentDescription="@string/delete_all_spots"
+        android:title="@string/delete_all_spots" />
+
+    <item
+        android:id="@+id/to_map"
+        android:contentDescription="@string/map"
+        android:title="@string/map" />
+
+
+</menu>

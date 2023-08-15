@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/save_place"
+        android:contentDescription="@string/save_location"
+        android:title="@string/save_location" />
+
+    <item
+        android:id="@+id/list_of_places"
+        android:contentDescription="@string/list_of_places"
+        android:title="@string/list_of_places" />
+
+
+</menu>
