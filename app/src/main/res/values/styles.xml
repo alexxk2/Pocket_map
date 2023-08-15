@@ -10,4 +10,11 @@
         <item name="android:textSize">@dimen/place_info_text_size</item>
     </style>
 
+    <style name="ScreenMessagesText">
+        <item name="android:textAlignment">center</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/screen_messages_text_size</item>
+    </style>
+
 </resources>

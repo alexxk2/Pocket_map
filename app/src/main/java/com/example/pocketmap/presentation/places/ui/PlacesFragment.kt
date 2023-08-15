@@ -1,17 +1,24 @@
 package com.example.pocketmap.presentation.places.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pocketmap.databinding.FragmentPlacesBinding
+import com.example.pocketmap.domain.models.Place
+import com.example.pocketmap.presentation.places.models.ScreenState
+import com.example.pocketmap.presentation.places.view_model.PlacesViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class PlacesFragment : Fragment() {
 
     private var _binding: FragmentPlacesBinding? = null
     private val binding get() = _binding!!
+    private lateinit var placesAdapter: PlacesAdapter
+    private val viewModel: PlacesViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +32,7 @@ class PlacesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = FragmentPlacesBinding.inflate(layoutInflater,container,false)
+        _binding = FragmentPlacesBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -33,7 +40,74 @@ class PlacesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+        setRecyclerView()
+
+        viewModel.listOfPlaces.observe(viewLifecycleOwner) { listOfPlaces ->
+            placesAdapter.submitList(listOfPlaces)
+        }
+
+        viewModel.screenState.observe(viewLifecycleOwner) { screenState ->
+            manageScreenContent(screenState)
+        }
+
     }
+
+    private fun manageScreenContent(screenState: ScreenState) {
+
+        when (screenState) {
+            ScreenState.Content -> {
+                with(binding) {
+                    placesRecyclerView.visibility = View.VISIBLE
+                    progressBar.visibility = View.GONE
+                    noContentLayout.visibility = View.GONE
+                    errorLayout.visibility = View.GONE
+
+                }
+            }
+
+            ScreenState.Empty -> {
+                with(binding) {
+                    placesRecyclerView.visibility = View.GONE
+                    progressBar.visibility = View.GONE
+                    noContentLayout.visibility = View.VISIBLE
+                    errorLayout.visibility = View.GONE
+
+                }
+            }
+
+            ScreenState.Error -> {
+                with(binding) {
+                    placesRecyclerView.visibility = View.GONE
+                    progressBar.visibility = View.GONE
+                    noContentLayout.visibility = View.GONE
+                    errorLayout.visibility = View.VISIBLE
+
+                }
+            }
+
+            ScreenState.Loading -> {
+                with(binding) {
+                    placesRecyclerView.visibility = View.GONE
+                    progressBar.visibility = View.VISIBLE
+                    noContentLayout.visibility = View.GONE
+                    errorLayout.visibility = View.GONE
+
+                }
+            }
+        }
+    }
+
+    private fun setRecyclerView() {
+        placesAdapter = PlacesAdapter(requireContext(), object : PlacesAdapter.PlacesClickListener {
+            override fun onPlaceClick(place: Place) {
+
+            }
+        })
+        binding.placesRecyclerView.adapter = placesAdapter
+        binding.placesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.placesRecyclerView.setHasFixedSize(true)
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
