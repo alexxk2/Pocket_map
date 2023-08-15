@@ -6,9 +6,9 @@
     <string name="central_pointer">Central pointer</string>
     <string name="save_location">Сохранить координаты</string>
     <string name="answer_yes">Да</string>
-    <string name="answer_no">НЕТ</string>
+    <string name="answer_no">Нет</string>
     <string name="alert_dialog_message_save_new_place">Вы хотите сохранить эти координаты?</string>
-    <string name="alert_dialog_title">Координаты</string>
+    <string name="alert_dialog_title_save">Координаты</string>
     <string name="latitude">Широта</string>
     <string name="longitude">Долгота</string>
 
@@ -24,6 +24,8 @@
     <string name="delete_all_spots">Удалить все точки</string>
     <string name="map">Карта</string>
     <string name="the_map">Карта</string>
+    <string name="alert_dialog_message_delete_all">Вы действительно хотите удалить все точки?</string>
+    <string name="alert_dialog_title_delete">Внимание</string>
 
 
 </resources>

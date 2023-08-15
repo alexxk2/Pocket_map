@@ -1,11 +1,11 @@
 package com.example.pocketmap.presentation.map.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.pocketmap.R
 import com.example.pocketmap.databinding.FragmentMapBinding
@@ -79,8 +79,6 @@ class MapFragment : Fragment() {
         )
     }
 
-
-
     private fun addPlaceMarkOnMap(worldPoint: Point) {
         binding.yandexMapsView.map.mapObjects.addPlacemark(
             worldPoint,
@@ -97,16 +95,29 @@ class MapFragment : Fragment() {
         }
     }
 
-    private fun createAndInflateDialogView(newPoint: Point):View{
-        val dialogView = View.inflate(requireContext(),R.layout.save_dialog_layout,null)
+    private fun createAndInflateDialogView(newPoint: Point): View {
+        val dialogView = View.inflate(requireContext(), R.layout.save_dialog_layout, null)
         val latitudeEditText: TextView = dialogView.findViewById(R.id.edit_latitude)
         val longitudeEditText: TextView = dialogView.findViewById(R.id.edit_longitude)
 
-        latitudeEditText.text = String.format("%.4f",newPoint.latitude)
-        longitudeEditText.text = String.format("%.4f",newPoint.longitude)
+        latitudeEditText.text = String.format("%.4f", newPoint.latitude)
+        longitudeEditText.text = String.format("%.4f", newPoint.longitude)
 
         return dialogView
     }
+
+    private fun isDataInDialogEdited(
+        latEditText: TextView,
+        lonEditText: TextView,
+        newPoint: Point
+    ): Boolean = latEditText.text.toString() != String.format(
+        "%.4f",
+        newPoint.latitude
+    ) || lonEditText.text.toString() != String.format(
+        "%.4f",
+        newPoint.longitude
+    )
+
 
     private fun showSaveNewPlaceConfirmationDialog() {
 
@@ -119,16 +130,31 @@ class MapFragment : Fragment() {
         val dialogView = createAndInflateDialogView(newPoint = newPoint)
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.alert_dialog_title))
+            .setTitle(getString(R.string.alert_dialog_title_save))
             .setView(dialogView)
             .setMessage(getString(R.string.alert_dialog_message_save_new_place))
             .setCancelable(false)
             .setNegativeButton(getString(R.string.answer_no)) { _, _ -> }
             .setPositiveButton(getString(R.string.answer_yes)) { _, _ ->
 
-                addPlaceMarkOnMap(newPoint)
-                viewModel.addNewPlace(place = newPlace)
+                val latitudeEditText: TextView = dialogView.findViewById(R.id.edit_latitude)
+                val longitudeEditText: TextView = dialogView.findViewById(R.id.edit_longitude)
 
+                if (isDataInDialogEdited(latitudeEditText, longitudeEditText, newPoint)) {
+                    val newPointEdited = Point(
+                        latitudeEditText.text.toString().toDouble(),
+                        longitudeEditText.text.toString().toDouble()
+                    )
+                    val newPlaceEdited = Place(
+                        lat = newPointEdited.latitude,
+                        lon = newPointEdited.longitude
+                    )
+                    addPlaceMarkOnMap(newPointEdited)
+                    viewModel.addNewPlace(place = newPlaceEdited)
+                } else {
+                    addPlaceMarkOnMap(newPoint)
+                    viewModel.addNewPlace(place = newPlace)
+                }
             }
             .show()
     }
@@ -151,3 +177,4 @@ class MapFragment : Fragment() {
         _binding = null
     }
 }
+

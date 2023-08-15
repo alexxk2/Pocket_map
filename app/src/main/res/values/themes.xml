@@ -8,6 +8,10 @@
         <item name="android:statusBarColor">@color/black_variant1</item>
         <!--MaterialDialogTheme-->
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
+        <item name="popupMenuBackground">@color/white</item>
+
+
+
     </style>
 
     <style name="Theme.PocketMap" parent="Base.Theme.PocketMap" />

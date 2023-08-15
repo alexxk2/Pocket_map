@@ -12,6 +12,7 @@ import com.example.pocketmap.databinding.FragmentPlacesBinding
 import com.example.pocketmap.domain.models.Place
 import com.example.pocketmap.presentation.places.models.ScreenState
 import com.example.pocketmap.presentation.places.view_model.PlacesViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -64,7 +65,8 @@ class PlacesFragment : Fragment() {
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.delete_all_items -> {
-                    viewModel.deleteAllPlaces()
+
+                    showDeleteConfirmationDialog()
                     true
                 }
 
@@ -130,6 +132,19 @@ class PlacesFragment : Fragment() {
         binding.placesRecyclerView.adapter = placesAdapter
         binding.placesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.placesRecyclerView.setHasFixedSize(true)
+    }
+
+    private fun showDeleteConfirmationDialog() {
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.alert_dialog_title_delete))
+            .setMessage(getString(R.string.alert_dialog_message_delete_all))
+            .setCancelable(false)
+            .setNegativeButton(getString(R.string.answer_no)) { _, _ -> }
+            .setPositiveButton(getString(R.string.answer_yes)) { _, _ ->
+                viewModel.deleteAllPlaces()
+            }
+            .show()
     }
 
 
