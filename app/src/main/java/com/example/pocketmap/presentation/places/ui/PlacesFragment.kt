@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.pocketmap.R
 import com.example.pocketmap.databinding.FragmentPlacesBinding
 import com.example.pocketmap.domain.models.Place
 import com.example.pocketmap.presentation.places.models.ScreenState
@@ -52,10 +53,27 @@ class PlacesFragment : Fragment() {
             manageScreenContent(screenState)
         }
 
+        binding.buttonBackToMap.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.delete_all_items -> {
+                    viewModel.deleteAllPlaces()
+                    true
+                }
+
+                else -> {
+                    findNavController().navigateUp()
+                    true
+                }
+            }
+        }
     }
 
     private fun manageScreenContent(screenState: ScreenState) {

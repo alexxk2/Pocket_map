@@ -36,9 +36,15 @@ class PlacesAdapter(
         val item = getItem(position)
 
         with(holder.binding) {
+
+
             placeNameTextView.text = context.getString(R.string.place_name_text, item.id.toString())
             placeLocationTextView.text =
-                context.getString(R.string.place_location_text, item.lat.toString(), item.lon.toString())
+                context.getString(
+                    R.string.place_location_text,
+                    String.format("%.4f", item.lat),
+                    String.format("%.4f", item.lon)
+                )
 
             root.tag = item
             placeNameTextView.tag = item
@@ -47,7 +53,7 @@ class PlacesAdapter(
 
     override fun onClick(v: View?) {
         val place = v?.tag as Place
-        when(v.id){
+        when (v.id) {
             R.id.place_name_text_view -> actionListener.onPlaceClick(place)
             else -> actionListener.onPlaceClick(place)
         }

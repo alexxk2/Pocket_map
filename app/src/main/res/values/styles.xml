@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!--Map screen-->
+
+    <style name="MaterialAlertDialog.App.Title.Text" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Widget.App.Button" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
     <!--Places screen-->
     <style name="PlaceInfoText">
         <item name="android:ellipsize">end</item>
@@ -22,5 +32,6 @@
         <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/title_top_bar_text_size</item>
     </style>
+
 
 </resources>

@@ -5,11 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import com.example.pocketmap.R
 import com.example.pocketmap.databinding.FragmentMapBinding
 import com.example.pocketmap.domain.models.Place
 import com.example.pocketmap.presentation.map.view_model.MapViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.ScreenPoint
@@ -44,26 +46,15 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-
-
         MapKitFactory.initialize(requireContext().applicationContext)
         initialMovement()
-
-
 
 
         binding.topAppBar.setOnMenuItemClickListener { menuitem ->
             when (menuitem.itemId) {
                 R.id.save_place -> {
 
-                    val newPoint = createWorldPointInCenter()
-                    val newPlace = Place(
-                        lat = newPoint.latitude,
-                        lon = newPoint.longitude
-                    )
-
-                    addPlaceMarkOnMap(newPoint)
-                    viewModel.addNewPlace(place = newPlace)
+                    showSaveNewPlaceConfirmationDialog()
                     true
                 }
 
@@ -88,6 +79,8 @@ class MapFragment : Fragment() {
         )
     }
 
+
+
     private fun addPlaceMarkOnMap(worldPoint: Point) {
         binding.yandexMapsView.map.mapObjects.addPlacemark(
             worldPoint,
@@ -102,6 +95,42 @@ class MapFragment : Fragment() {
             val centerPoint = ScreenPoint(centerX, centerY)
             return yandexMapsView.screenToWorld(centerPoint)
         }
+    }
+
+    private fun createAndInflateDialogView(newPoint: Point):View{
+        val dialogView = View.inflate(requireContext(),R.layout.save_dialog_layout,null)
+        val latitudeEditText: TextView = dialogView.findViewById(R.id.edit_latitude)
+        val longitudeEditText: TextView = dialogView.findViewById(R.id.edit_longitude)
+
+        latitudeEditText.text = String.format("%.4f",newPoint.latitude)
+        longitudeEditText.text = String.format("%.4f",newPoint.longitude)
+
+        return dialogView
+    }
+
+    private fun showSaveNewPlaceConfirmationDialog() {
+
+        val newPoint = createWorldPointInCenter()
+        val newPlace = Place(
+            lat = newPoint.latitude,
+            lon = newPoint.longitude
+        )
+
+        val dialogView = createAndInflateDialogView(newPoint = newPoint)
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.alert_dialog_title))
+            .setView(dialogView)
+            .setMessage(getString(R.string.alert_dialog_message_save_new_place))
+            .setCancelable(false)
+            .setNegativeButton(getString(R.string.answer_no)) { _, _ -> }
+            .setPositiveButton(getString(R.string.answer_yes)) { _, _ ->
+
+                addPlaceMarkOnMap(newPoint)
+                viewModel.addNewPlace(place = newPlace)
+
+            }
+            .show()
     }
 
     override fun onStop() {

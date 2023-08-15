@@ -114,17 +114,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/no_content_image" />
 
-        <ImageView
-            android:id="@+id/arrow_down"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:contentDescription="@string/no_content_image"
-            android:src="@drawable/ic_long_arrow_down"
-            app:layout_constraintBottom_toTopOf="@id/button_back_to_map"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/no_content_message" />
 
         <Button
             android:id="@+id/button_back_to_map"
