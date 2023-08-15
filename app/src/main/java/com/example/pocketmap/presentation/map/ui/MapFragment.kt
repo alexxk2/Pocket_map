@@ -5,20 +5,25 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.example.pocketmap.R
 import com.example.pocketmap.databinding.FragmentMapBinding
+import com.example.pocketmap.domain.models.Place
+import com.example.pocketmap.presentation.map.view_model.MapViewModel
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.ScreenPoint
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.runtime.image.ImageProvider
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MapFragment : Fragment() {
 
     private var _binding: FragmentMapBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: MapViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +36,7 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentMapBinding.inflate(layoutInflater,container,false)
+        _binding = FragmentMapBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -39,24 +44,40 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+
+
         MapKitFactory.initialize(requireContext().applicationContext)
         initialMovement()
 
 
-        binding.addNewPlaceButton.setOnClickListener {
-            val centerX = binding.yandexMapsView.width/2f
-            val centerY = binding.yandexMapsView.height/2f
-            val centerPoint = ScreenPoint(centerX,centerY)
-            val worldPoint = binding.yandexMapsView.screenToWorld(centerPoint)
 
-            binding.yandexMapsView.map.mapObjects.addPlacemark(
-                worldPoint,
-                ImageProvider.fromResource(requireContext(), R.drawable.image_new_place)
-            )
+
+        binding.topAppBar.setOnMenuItemClickListener { menuitem ->
+            when (menuitem.itemId) {
+                R.id.save_place -> {
+
+                    val newPoint = createWorldPointInCenter()
+                    val newPlace = Place(
+                        lat = newPoint.latitude,
+                        lon = newPoint.longitude
+                    )
+
+                    addPlaceMarkOnMap(newPoint)
+                    viewModel.addNewPlace(place = newPlace)
+                    true
+                }
+
+                else -> {
+                    val action = MapFragmentDirections.actionMapFragmentToPlacesFragment()
+                    findNavController().navigate(action)
+                    true
+                }
+            }
         }
+
     }
 
-    private fun initialMovement(){
+    private fun initialMovement() {
         binding.yandexMapsView.map.move(
             CameraPosition(
                 Point(59.945933, 30.320045),
@@ -65,6 +86,22 @@ class MapFragment : Fragment() {
                 0.0f
             ), Animation(Animation.Type.SMOOTH, 5f), null
         )
+    }
+
+    private fun addPlaceMarkOnMap(worldPoint: Point) {
+        binding.yandexMapsView.map.mapObjects.addPlacemark(
+            worldPoint,
+            ImageProvider.fromResource(requireContext(), R.drawable.image_new_place)
+        )
+    }
+
+    private fun createWorldPointInCenter(): Point {
+        with(binding) {
+            val centerX = yandexMapsView.width / 2f
+            val centerY = yandexMapsView.height / 2f
+            val centerPoint = ScreenPoint(centerX, centerY)
+            return yandexMapsView.screenToWorld(centerPoint)
+        }
     }
 
     override fun onStop() {

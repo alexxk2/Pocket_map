@@ -17,4 +17,10 @@
         <item name="android:textSize">@dimen/screen_messages_text_size</item>
     </style>
 
+    <style name="TopBarTitle">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/title_top_bar_text_size</item>
+    </style>
+
 </resources>

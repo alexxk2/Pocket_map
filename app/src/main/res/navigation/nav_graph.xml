@@ -9,10 +9,20 @@
         android:id="@+id/mapFragment"
         android:name="com.example.pocketmap.presentation.map.ui.MapFragment"
         android:label="fragment_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/action_mapFragment_to_placesFragment"
+            app:destination="@id/placesFragment" />
+    </fragment>
     <fragment
         android:id="@+id/placesFragment"
         android:name="com.example.pocketmap.presentation.places.ui.PlacesFragment"
         android:label="fragment_places"
-        tools:layout="@layout/fragment_places" />
+        tools:layout="@layout/fragment_places" >
+        <action
+            android:id="@+id/action_placesFragment_to_mapFragment"
+            app:destination="@id/mapFragment"
+            app:popUpTo="@id/mapFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

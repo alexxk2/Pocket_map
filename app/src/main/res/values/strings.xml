@@ -4,13 +4,17 @@
     <!--Map screen-->
     <string name="add_placemark_button">Add placemark button</string>
     <string name="central_pointer">Central pointer</string>
+    <string name="save_location">Сохранить координаты</string>
 
    <!-- Places screen-->
-    <string name="place_name_text">Точка %1$d</string>
-    <string name="place_location_text">%1$d° %2$d° </string>
+    <string name="place_name_text">Точка %1$s</string>
+    <string name="place_location_text">%1$s° %2$s° </string>
     <string name="error_image">Error image</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="no_content_image">No content image</string>
     <string name="no_content_message">You haven`t saved any new place yet</string>
+    <string name="list_of_places">Список точек</string>
+    <string name="saved_spots">Saved spots</string>
+
 
 </resources>

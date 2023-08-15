@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pocketmap.databinding.FragmentPlacesBinding
 import com.example.pocketmap.domain.models.Place
@@ -41,6 +42,7 @@ class PlacesFragment : Fragment() {
 
 
         setRecyclerView()
+        viewModel.getAllPlaces()
 
         viewModel.listOfPlaces.observe(viewLifecycleOwner) { listOfPlaces ->
             placesAdapter.submitList(listOfPlaces)
@@ -48,6 +50,10 @@ class PlacesFragment : Fragment() {
 
         viewModel.screenState.observe(viewLifecycleOwner) { screenState ->
             manageScreenContent(screenState)
+        }
+
+        binding.topAppBar.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
 
     }

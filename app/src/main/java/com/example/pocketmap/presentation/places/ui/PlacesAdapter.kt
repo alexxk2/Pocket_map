@@ -36,9 +36,9 @@ class PlacesAdapter(
         val item = getItem(position)
 
         with(holder.binding) {
-            placeNameTextView.text = context.getString(R.string.place_name_text, item.id)
+            placeNameTextView.text = context.getString(R.string.place_name_text, item.id.toString())
             placeLocationTextView.text =
-                context.getString(R.string.place_location_text, item.lat, item.lon)
+                context.getString(R.string.place_location_text, item.lat.toString(), item.lon.toString())
 
             root.tag = item
             placeNameTextView.tag = item
