@@ -29,6 +29,7 @@ class MapFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: MapViewModel by viewModel()
     private lateinit var listOfPlaces: List<Place>
+    private var currentZoomValue = INITIAL_ZOOM_VALUE
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +44,7 @@ class MapFragment : Fragment() {
 
         MapKitFactory.initialize(requireContext().applicationContext)
 
+
         viewModel.getAllPlaces()
 
         viewModel.listOfPlaces.observe(viewLifecycleOwner) { newListOfPlaces ->
@@ -54,6 +56,9 @@ class MapFragment : Fragment() {
         viewModel.screenState.observe(viewLifecycleOwner) { screenState ->
             manageScreenContent(screenState = screenState)
         }
+
+        binding.zoomInButton.setOnClickListener { zoomIn() }
+        binding.zoomOutButton.setOnClickListener { zoomOut() }
 
         binding.topAppBar.setOnMenuItemClickListener { menuitem ->
             when (menuitem.itemId) {
@@ -206,9 +211,31 @@ class MapFragment : Fragment() {
     private fun moveMapCamera(point: Point) {
         binding.yandexMapsView.map.move(
             CameraPosition(
-                point, 14.0f, 0.0f, 0.0f
-            ), Animation(Animation.Type.SMOOTH, MAP_MOVEMENT_DURATION), null
+                point, INITIAL_ZOOM_VALUE, 0.0f, 0.0f
+            ), Animation(Animation.Type.SMOOTH, MAP_MOVEMENT_DURATION_LONG), null
         )
+    }
+
+    private fun zoomMapCamera(zoomValue: Float) {
+        binding.yandexMapsView.map.move(
+            CameraPosition(
+                createWorldPointInCenter(), zoomValue, 0.0f, 0.0f
+            ), Animation(Animation.Type.SMOOTH, MAP_MOVEMENT_DURATION_SHORT), null
+        )
+    }
+
+    private fun zoomIn() {
+        if (currentZoomValue >= binding.yandexMapsView.map.maxZoom) return
+
+        currentZoomValue += 1.0f
+        zoomMapCamera(currentZoomValue)
+    }
+
+    private fun zoomOut() {
+        if (currentZoomValue <= binding.yandexMapsView.map.minZoom) return
+
+        currentZoomValue -= 1.0f
+        zoomMapCamera(currentZoomValue)
     }
 
     override fun onStop() {
@@ -230,7 +257,9 @@ class MapFragment : Fragment() {
     }
 
     companion object {
-        const val MAP_MOVEMENT_DURATION = 3f
+        const val MAP_MOVEMENT_DURATION_LONG = 3f
+        const val MAP_MOVEMENT_DURATION_SHORT = 0.5f
+        const val INITIAL_ZOOM_VALUE = 14.0f
     }
 }
 
