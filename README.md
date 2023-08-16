@@ -20,4 +20,4 @@
 
 ## Gif flow приложения
 
-<img src="https://drive.google.com/drive/folders/1K5qg01ncrGV57LUzvbwY501mRCTd0iGC" width="340" height="699" />  <br>
+<img src="https://drive.google.com/file/d/1kiAKXbeAfAwjy2pgSKR1hk_2kgbQympb/view?usp=sharing" width="340" height="699" />  <br>
