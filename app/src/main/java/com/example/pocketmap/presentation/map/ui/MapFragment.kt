@@ -1,5 +1,6 @@
 package com.example.pocketmap.presentation.map.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +31,16 @@ class MapFragment : Fragment() {
     private val viewModel: MapViewModel by viewModel()
     private lateinit var listOfPlaces: List<Place>
     private var currentZoomValue = INITIAL_ZOOM_VALUE
+    private var clickedPlaceId = -1
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        arguments?.let {
+            clickedPlaceId = it.getInt(PLACE_ID)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,43 +55,53 @@ class MapFragment : Fragment() {
 
         MapKitFactory.initialize(requireContext().applicationContext)
 
+        with(viewModel) {
+            getAllPlaces()
 
-        viewModel.getAllPlaces()
+            listOfPlaces.observe(viewLifecycleOwner) { newListOfPlaces ->
+                this@MapFragment.listOfPlaces = newListOfPlaces
+                manageSpotsDrawing(newListOfPlaces)
+                initialMapCameraMovement(newListOfPlaces)
+            }
 
-        viewModel.listOfPlaces.observe(viewLifecycleOwner) { newListOfPlaces ->
-            listOfPlaces = newListOfPlaces
-            manageSpotsDrawing(newListOfPlaces)
-            initialMapCameraMovement(newListOfPlaces)
+            screenState.observe(viewLifecycleOwner) { screenState ->
+                manageScreenContent(screenState = screenState)
+            }
         }
 
-        viewModel.screenState.observe(viewLifecycleOwner) { screenState ->
-            manageScreenContent(screenState = screenState)
-        }
+        with(binding) {
+            zoomInButton.setOnClickListener { zoomIn() }
+            zoomOutButton.setOnClickListener { zoomOut() }
 
-        binding.zoomInButton.setOnClickListener { zoomIn() }
-        binding.zoomOutButton.setOnClickListener { zoomOut() }
+            topAppBar.setOnMenuItemClickListener { menuitem ->
+                when (menuitem.itemId) {
+                    R.id.save_place -> {
 
-        binding.topAppBar.setOnMenuItemClickListener { menuitem ->
-            when (menuitem.itemId) {
-                R.id.save_place -> {
+                        showSaveNewPlaceConfirmationDialog()
+                        true
+                    }
 
-                    showSaveNewPlaceConfirmationDialog()
-                    true
-                }
-
-                else -> {
-                    val action = MapFragmentDirections.actionMapFragmentToPlacesFragment()
-                    findNavController().navigate(action)
-                    true
+                    else -> {
+                        val action = MapFragmentDirections.actionMapFragmentToPlacesFragment()
+                        findNavController().navigate(action)
+                        true
+                    }
                 }
             }
         }
+
     }
 
     private fun initialMapCameraMovement(listOfPlaces: List<Place>) {
-        if (listOfPlaces.isEmpty()) {
+        if (clickedPlaceId != -1) {
+            val clickedPlace = listOfPlaces.first { it.id == clickedPlaceId }
+            val clickedPoint = Point(clickedPlace.lat, clickedPlace.lon)
+            moveMapCamera(clickedPoint)
+
+        } else if (listOfPlaces.isEmpty()) {
             val defaultPoint = Point(59.945933, 30.320045)
             moveMapCamera(defaultPoint)
+
         } else {
             val lastCreatedPoint = Point(listOfPlaces.last().lat, listOfPlaces.last().lon)
             moveMapCamera(lastCreatedPoint)
@@ -260,6 +281,7 @@ class MapFragment : Fragment() {
         const val MAP_MOVEMENT_DURATION_LONG = 3f
         const val MAP_MOVEMENT_DURATION_SHORT = 0.5f
         const val INITIAL_ZOOM_VALUE = 14.0f
+        const val PLACE_ID = "placeId"
     }
 }
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,11 +24,14 @@ class PlacesFragment : Fragment() {
     private lateinit var placesAdapter: PlacesAdapter
     private val viewModel: PlacesViewModel by viewModel()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
 
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+            navigateBackWithoutId()
         }
+
     }
 
     override fun onCreateView(
@@ -44,38 +48,43 @@ class PlacesFragment : Fragment() {
 
 
         setRecyclerView()
-        viewModel.getAllPlaces()
+        with(viewModel) {
+            getAllPlaces()
 
-        viewModel.listOfPlaces.observe(viewLifecycleOwner) { listOfPlaces ->
-            placesAdapter.submitList(listOfPlaces)
+            listOfPlaces.observe(viewLifecycleOwner) { listOfPlaces ->
+                placesAdapter.submitList(listOfPlaces)
+            }
+
+            screenState.observe(viewLifecycleOwner) { screenState ->
+                manageScreenContent(screenState)
+            }
         }
 
-        viewModel.screenState.observe(viewLifecycleOwner) { screenState ->
-            manageScreenContent(screenState)
-        }
+        with(binding) {
+            buttonBackToMap.setOnClickListener {
+                navigateBackWithoutId()
+            }
 
-        binding.buttonBackToMap.setOnClickListener {
-            findNavController().navigateUp()
-        }
+            topAppBar.setNavigationOnClickListener {
+                navigateBackWithoutId()
+            }
 
-        binding.topAppBar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+            topAppBar.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.delete_all_items -> {
 
-        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.delete_all_items -> {
+                        showDeleteConfirmationDialog()
+                        true
+                    }
 
-                    showDeleteConfirmationDialog()
-                    true
-                }
-
-                else -> {
-                    findNavController().navigateUp()
-                    true
+                    else -> {
+                        findNavController().navigateUp()
+                        true
+                    }
                 }
             }
         }
+
     }
 
     private fun manageScreenContent(screenState: PlacesScreenState) {
@@ -127,6 +136,9 @@ class PlacesFragment : Fragment() {
         placesAdapter = PlacesAdapter(requireContext(), object : PlacesAdapter.PlacesClickListener {
             override fun onPlaceClick(place: Place) {
 
+                val action =
+                    PlacesFragmentDirections.actionPlacesFragmentToMapFragment(placeId = place.id)
+                findNavController().navigate(action)
             }
         })
         binding.placesRecyclerView.adapter = placesAdapter
@@ -147,6 +159,10 @@ class PlacesFragment : Fragment() {
             .show()
     }
 
+    private fun navigateBackWithoutId() {
+        val action = PlacesFragmentDirections.actionPlacesFragmentToMapFragment()
+        findNavController().navigate(action)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

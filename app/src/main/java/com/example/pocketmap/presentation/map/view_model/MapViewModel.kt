@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pocketmap.domain.models.Place
 import com.example.pocketmap.domain.storage.AddNewPlaceUseCase
 import com.example.pocketmap.domain.storage.GetAllPlacesUseCase
+import com.example.pocketmap.domain.storage.GetPlaceUseCase
 import com.example.pocketmap.presentation.map.models.MapScreenState
 import com.example.pocketmap.presentation.places.models.PlacesScreenState
 import kotlinx.coroutines.launch
@@ -42,6 +43,6 @@ class MapViewModel(
                 _screenState.value = MapScreenState.Error
             }
         }
-
     }
+
 }

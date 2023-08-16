@@ -13,6 +13,10 @@
         <action
             android:id="@+id/action_mapFragment_to_placesFragment"
             app:destination="@id/placesFragment" />
+        <argument
+            android:name="placeId"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
     <fragment
         android:id="@+id/placesFragment"
