@@ -5,11 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.pocketmap.R
 import com.example.pocketmap.databinding.FragmentMapBinding
 import com.example.pocketmap.domain.models.Place
+import com.example.pocketmap.presentation.map.models.MapScreenState
 import com.example.pocketmap.presentation.map.view_model.MapViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yandex.mapkit.Animation
@@ -26,13 +28,7 @@ class MapFragment : Fragment() {
     private var _binding: FragmentMapBinding? = null
     private val binding get() = _binding!!
     private val viewModel: MapViewModel by viewModel()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
-    }
+    private lateinit var listOfPlaces: List<Place>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,10 +41,19 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         MapKitFactory.initialize(requireContext().applicationContext)
-        initialMovement()
 
+        viewModel.getAllPlaces()
+
+        viewModel.listOfPlaces.observe(viewLifecycleOwner) { newListOfPlaces ->
+            listOfPlaces = newListOfPlaces
+            manageSpotsDrawing(newListOfPlaces)
+            initialMapCameraMovement(newListOfPlaces)
+        }
+
+        viewModel.screenState.observe(viewLifecycleOwner) { screenState ->
+            manageScreenContent(screenState = screenState)
+        }
 
         binding.topAppBar.setOnMenuItemClickListener { menuitem ->
             when (menuitem.itemId) {
@@ -65,18 +70,16 @@ class MapFragment : Fragment() {
                 }
             }
         }
-
     }
 
-    private fun initialMovement() {
-        binding.yandexMapsView.map.move(
-            CameraPosition(
-                Point(59.945933, 30.320045),
-                14.0f,
-                0.0f,
-                0.0f
-            ), Animation(Animation.Type.SMOOTH, 5f), null
-        )
+    private fun initialMapCameraMovement(listOfPlaces: List<Place>) {
+        if (listOfPlaces.isEmpty()) {
+            val defaultPoint = Point(59.945933, 30.320045)
+            moveMapCamera(defaultPoint)
+        } else {
+            val lastCreatedPoint = Point(listOfPlaces.last().lat, listOfPlaces.last().lon)
+            moveMapCamera(lastCreatedPoint)
+        }
     }
 
     private fun addPlaceMarkOnMap(worldPoint: Point) {
@@ -84,6 +87,10 @@ class MapFragment : Fragment() {
             worldPoint,
             ImageProvider.fromResource(requireContext(), R.drawable.image_new_place)
         )
+    }
+
+    private fun clearMapFromAllObjects(){
+        binding.yandexMapsView.map.mapObjects.clear()
     }
 
     private fun createWorldPointInCenter(): Point {
@@ -94,6 +101,8 @@ class MapFragment : Fragment() {
             return yandexMapsView.screenToWorld(centerPoint)
         }
     }
+
+
 
     private fun createAndInflateDialogView(newPoint: Point): View {
         val dialogView = View.inflate(requireContext(), R.layout.save_dialog_layout, null)
@@ -159,6 +168,49 @@ class MapFragment : Fragment() {
             .show()
     }
 
+    private fun manageScreenContent(screenState: MapScreenState) {
+        when (screenState) {
+            MapScreenState.Content -> {
+                with(binding) {
+                    mapProgressBar.visibility = View.GONE
+                    pointerView.visibility = View.VISIBLE
+                }
+            }
+
+            MapScreenState.Loading ->
+                with(binding) {
+                    mapProgressBar.visibility = View.VISIBLE
+                    pointerView.visibility = View.GONE
+                }
+
+            MapScreenState.Error -> showErrorToast()
+        }
+    }
+
+    private fun showErrorToast() {
+        Toast.makeText(requireContext(), R.string.error_toast, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun manageSpotsDrawing(listOfPlaces: List<Place>) {
+        if (listOfPlaces.isEmpty()) {
+            clearMapFromAllObjects()
+            return
+        }
+
+        listOfPlaces.forEach { place ->
+            val tempPoint = Point(place.lat, place.lon)
+            addPlaceMarkOnMap(tempPoint)
+        }
+    }
+
+    private fun moveMapCamera(point: Point) {
+        binding.yandexMapsView.map.move(
+            CameraPosition(
+                point, 14.0f, 0.0f, 0.0f
+            ), Animation(Animation.Type.SMOOTH, MAP_MOVEMENT_DURATION), null
+        )
+    }
+
     override fun onStop() {
         binding.yandexMapsView.onStop()
         MapKitFactory.getInstance().onStop()
@@ -175,6 +227,10 @@ class MapFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object{
+        const val MAP_MOVEMENT_DURATION = 3f
     }
 }
 

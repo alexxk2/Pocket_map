@@ -43,4 +43,14 @@
         app:layout_constraintStart_toStartOf="@id/yandex_maps_view"
         app:layout_constraintTop_toTopOf="@id/yandex_maps_view" />
 
+    <ProgressBar
+        android:id="@+id/map_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/yandex_maps_view"
+        app:layout_constraintEnd_toEndOf="@id/yandex_maps_view"
+        app:layout_constraintStart_toStartOf="@id/yandex_maps_view"
+        app:layout_constraintTop_toTopOf="@id/yandex_maps_view" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pocketmap.R
 import com.example.pocketmap.databinding.FragmentPlacesBinding
 import com.example.pocketmap.domain.models.Place
-import com.example.pocketmap.presentation.places.models.ScreenState
+import com.example.pocketmap.presentation.places.models.PlacesScreenState
 import com.example.pocketmap.presentation.places.view_model.PlacesViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -78,10 +78,10 @@ class PlacesFragment : Fragment() {
         }
     }
 
-    private fun manageScreenContent(screenState: ScreenState) {
+    private fun manageScreenContent(screenState: PlacesScreenState) {
 
         when (screenState) {
-            ScreenState.Content -> {
+            PlacesScreenState.Content -> {
                 with(binding) {
                     placesRecyclerView.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
@@ -91,7 +91,7 @@ class PlacesFragment : Fragment() {
                 }
             }
 
-            ScreenState.Empty -> {
+            PlacesScreenState.Empty -> {
                 with(binding) {
                     placesRecyclerView.visibility = View.GONE
                     progressBar.visibility = View.GONE
@@ -101,7 +101,7 @@ class PlacesFragment : Fragment() {
                 }
             }
 
-            ScreenState.Error -> {
+            PlacesScreenState.Error -> {
                 with(binding) {
                     placesRecyclerView.visibility = View.GONE
                     progressBar.visibility = View.GONE
@@ -111,7 +111,7 @@ class PlacesFragment : Fragment() {
                 }
             }
 
-            ScreenState.Loading -> {
+            PlacesScreenState.Loading -> {
                 with(binding) {
                     placesRecyclerView.visibility = View.GONE
                     progressBar.visibility = View.VISIBLE

@@ -6,9 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pocketmap.domain.models.Place
 import com.example.pocketmap.domain.storage.DeleteAllPlacesUseCase
-import com.example.pocketmap.domain.storage.DeletePlaceUseCase
 import com.example.pocketmap.domain.storage.GetAllPlacesUseCase
-import com.example.pocketmap.presentation.places.models.ScreenState
+import com.example.pocketmap.presentation.places.models.PlacesScreenState
 import kotlinx.coroutines.launch
 
 class PlacesViewModel(
@@ -16,36 +15,36 @@ class PlacesViewModel(
     private val deleteAllPlacesUseCase: DeleteAllPlacesUseCase
 ): ViewModel() {
 
-    private val _screenState = MutableLiveData<ScreenState>()
-    val screenState: LiveData<ScreenState> = _screenState
+    private val _screenState = MutableLiveData<PlacesScreenState>()
+    val screenState: LiveData<PlacesScreenState> = _screenState
 
     private val _listOfPlaces = MutableLiveData<List<Place>>()
     val listOfPlaces: LiveData<List<Place>> = _listOfPlaces
 
 
     fun getAllPlaces(){
-        _screenState.value = ScreenState.Loading
+        _screenState.value = PlacesScreenState.Loading
 
         viewModelScope.launch {
 
             try {
                 _listOfPlaces.value = getAllPlacesUseCase.execute()
                 _screenState.value =
-                    if (listOfPlaces.value?.isEmpty() == true) ScreenState.Empty else ScreenState.Content
+                    if (listOfPlaces.value?.isEmpty() == true) PlacesScreenState.Empty else PlacesScreenState.Content
 
             } catch (e: Exception) {
-                _screenState.value = ScreenState.Error
+                _screenState.value = PlacesScreenState.Error
             }
         }
 
     }
 
     fun deleteAllPlaces(){
-        _screenState.value = ScreenState.Loading
+        _screenState.value = PlacesScreenState.Loading
 
         viewModelScope.launch {
             deleteAllPlacesUseCase.execute()
-            _screenState.value = ScreenState.Empty
+            _screenState.value = PlacesScreenState.Empty
         }
 
     }
