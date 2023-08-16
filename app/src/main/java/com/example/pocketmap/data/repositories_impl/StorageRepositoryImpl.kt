@@ -41,6 +41,7 @@ class StorageRepositoryImpl(private val roomStorage: RoomStorage): StorageReposi
         with(place){
             return PlaceDto(
                 id = id,
+                name = name,
                 lat = lat,
                 lon = lon
             )
@@ -51,6 +52,7 @@ class StorageRepositoryImpl(private val roomStorage: RoomStorage): StorageReposi
         with(placeDto){
             return Place(
                 id = id,
+                name = name,
                 lat = lat,
                 lon = lon
             )

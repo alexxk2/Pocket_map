@@ -89,7 +89,7 @@ class MapFragment : Fragment() {
         )
     }
 
-    private fun clearMapFromAllObjects(){
+    private fun clearMapFromAllObjects() {
         binding.yandexMapsView.map.mapObjects.clear()
     }
 
@@ -101,8 +101,6 @@ class MapFragment : Fragment() {
             return yandexMapsView.screenToWorld(centerPoint)
         }
     }
-
-
 
     private fun createAndInflateDialogView(newPoint: Point): View {
         val dialogView = View.inflate(requireContext(), R.layout.save_dialog_layout, null)
@@ -132,6 +130,7 @@ class MapFragment : Fragment() {
 
         val newPoint = createWorldPointInCenter()
         val newPlace = Place(
+            name = getString(R.string.place_name_text, listOfPlaces.size + 1),
             lat = newPoint.latitude,
             lon = newPoint.longitude
         )
@@ -155,6 +154,7 @@ class MapFragment : Fragment() {
                         longitudeEditText.text.toString().toDouble()
                     )
                     val newPlaceEdited = Place(
+                        name = getString(R.string.place_name_text, listOfPlaces.size + 1),
                         lat = newPointEdited.latitude,
                         lon = newPointEdited.longitude
                     )
@@ -229,7 +229,7 @@ class MapFragment : Fragment() {
         _binding = null
     }
 
-    companion object{
+    companion object {
         const val MAP_MOVEMENT_DURATION = 3f
     }
 }

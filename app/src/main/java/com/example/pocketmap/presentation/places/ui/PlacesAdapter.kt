@@ -37,8 +37,7 @@ class PlacesAdapter(
 
         with(holder.binding) {
 
-
-            placeNameTextView.text = context.getString(R.string.place_name_text, item.id.toString())
+            placeNameTextView.text = item.name
             placeLocationTextView.text =
                 context.getString(
                     R.string.place_location_text,
