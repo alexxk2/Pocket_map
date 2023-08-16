@@ -20,4 +20,4 @@
 
 ## Gif flow приложения
 
-<img src="https://github.com/alexxk2/Pocket_map/blob/dev/app/src/main/res/drawable/flow.gif" width="340" height="699" />  <br>
+<img src="https://drive.google.com/drive/folders/1K5qg01ncrGV57LUzvbwY501mRCTd0iGC" width="340" height="699" />  <br>
