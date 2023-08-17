@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!--Map screen-->
 
@@ -11,6 +11,17 @@
     <style name="Widget.App.Button" parent="Widget.Material3.Button.TextButton.Dialog">
         <item name="android:textColor">@color/black</item>
         <item name="android:fontFamily">@font/roboto_regular</item>
+    </style>
+
+    <style name="ZoomButtonStyle" >
+        <item name="android:backgroundTint">@color/black</item>
+        <item name="android:background">@drawable/zoom_button_shape</item>
+        <item name="android:gravity">center</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">0dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:layout_marginVertical">4dp</item>
+
     </style>
 
     <!--Places screen-->

@@ -11,9 +11,10 @@
     <string name="alert_dialog_title_save">Координаты</string>
     <string name="latitude">Широта</string>
     <string name="longitude">Долгота</string>
+    <string name="error_toast">Ошибка при загрузке сохраненных точек</string>
+    <string name="place_name_text">Точка %1$d</string>
 
    <!-- Places screen-->
-    <string name="place_name_text">Точка %1$s</string>
     <string name="place_location_text">%1$s° %2$s° </string>
     <string name="error_image">Error image</string>
     <string name="something_went_wrong">Что-то пошло не так</string>

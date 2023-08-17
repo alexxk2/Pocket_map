@@ -7,7 +7,12 @@ import org.koin.dsl.module
 
 val presentationModule = module {
 
-    viewModel<MapViewModel> { MapViewModel(addNewPlaceUseCase = get()) }
+    viewModel<MapViewModel> {
+        MapViewModel(
+            addNewPlaceUseCase = get(),
+            getAllPlacesUseCase = get()
+        )
+    }
 
     viewModel<PlacesViewModel> {
         PlacesViewModel(

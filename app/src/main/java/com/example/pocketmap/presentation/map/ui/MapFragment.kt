@@ -1,15 +1,18 @@
 package com.example.pocketmap.presentation.map.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.pocketmap.R
 import com.example.pocketmap.databinding.FragmentMapBinding
 import com.example.pocketmap.domain.models.Place
+import com.example.pocketmap.presentation.map.models.MapScreenState
 import com.example.pocketmap.presentation.map.view_model.MapViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yandex.mapkit.Animation
@@ -26,11 +29,16 @@ class MapFragment : Fragment() {
     private var _binding: FragmentMapBinding? = null
     private val binding get() = _binding!!
     private val viewModel: MapViewModel by viewModel()
+    private lateinit var listOfPlaces: List<Place>
+    private var currentZoomValue = INITIAL_ZOOM_VALUE
+    private var clickedPlaceId = -1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
 
+        arguments?.let {
+            clickedPlaceId = it.getInt(PLACE_ID)
         }
     }
 
@@ -45,38 +53,59 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         MapKitFactory.initialize(requireContext().applicationContext)
-        initialMovement()
 
+        with(viewModel) {
+            getAllPlaces()
 
-        binding.topAppBar.setOnMenuItemClickListener { menuitem ->
-            when (menuitem.itemId) {
-                R.id.save_place -> {
+            listOfPlaces.observe(viewLifecycleOwner) { newListOfPlaces ->
+                this@MapFragment.listOfPlaces = newListOfPlaces
+                manageSpotsDrawing(newListOfPlaces)
+                initialMapCameraMovement(newListOfPlaces)
+            }
 
-                    showSaveNewPlaceConfirmationDialog()
-                    true
-                }
+            screenState.observe(viewLifecycleOwner) { screenState ->
+                manageScreenContent(screenState = screenState)
+            }
+        }
 
-                else -> {
-                    val action = MapFragmentDirections.actionMapFragmentToPlacesFragment()
-                    findNavController().navigate(action)
-                    true
+        with(binding) {
+            zoomInButton.setOnClickListener { zoomIn() }
+            zoomOutButton.setOnClickListener { zoomOut() }
+
+            topAppBar.setOnMenuItemClickListener { menuitem ->
+                when (menuitem.itemId) {
+                    R.id.save_place -> {
+
+                        showSaveNewPlaceConfirmationDialog()
+                        true
+                    }
+
+                    else -> {
+                        val action = MapFragmentDirections.actionMapFragmentToPlacesFragment()
+                        findNavController().navigate(action)
+                        true
+                    }
                 }
             }
         }
 
     }
 
-    private fun initialMovement() {
-        binding.yandexMapsView.map.move(
-            CameraPosition(
-                Point(59.945933, 30.320045),
-                14.0f,
-                0.0f,
-                0.0f
-            ), Animation(Animation.Type.SMOOTH, 5f), null
-        )
+    private fun initialMapCameraMovement(listOfPlaces: List<Place>) {
+        if (clickedPlaceId != -1) {
+            val clickedPlace = listOfPlaces.first { it.id == clickedPlaceId }
+            val clickedPoint = Point(clickedPlace.lat, clickedPlace.lon)
+            moveMapCamera(clickedPoint)
+
+        } else if (listOfPlaces.isEmpty()) {
+            val defaultPoint = Point(59.945933, 30.320045)
+            moveMapCamera(defaultPoint)
+
+        } else {
+            val lastCreatedPoint = Point(listOfPlaces.last().lat, listOfPlaces.last().lon)
+            moveMapCamera(lastCreatedPoint)
+        }
     }
 
     private fun addPlaceMarkOnMap(worldPoint: Point) {
@@ -84,6 +113,10 @@ class MapFragment : Fragment() {
             worldPoint,
             ImageProvider.fromResource(requireContext(), R.drawable.image_new_place)
         )
+    }
+
+    private fun clearMapFromAllObjects() {
+        binding.yandexMapsView.map.mapObjects.clear()
     }
 
     private fun createWorldPointInCenter(): Point {
@@ -123,6 +156,7 @@ class MapFragment : Fragment() {
 
         val newPoint = createWorldPointInCenter()
         val newPlace = Place(
+            name = getString(R.string.place_name_text, listOfPlaces.size + 1),
             lat = newPoint.latitude,
             lon = newPoint.longitude
         )
@@ -146,6 +180,7 @@ class MapFragment : Fragment() {
                         longitudeEditText.text.toString().toDouble()
                     )
                     val newPlaceEdited = Place(
+                        name = getString(R.string.place_name_text, listOfPlaces.size + 1),
                         lat = newPointEdited.latitude,
                         lon = newPointEdited.longitude
                     )
@@ -157,6 +192,71 @@ class MapFragment : Fragment() {
                 }
             }
             .show()
+    }
+
+    private fun manageScreenContent(screenState: MapScreenState) {
+        when (screenState) {
+            MapScreenState.Content -> {
+                with(binding) {
+                    mapProgressBar.visibility = View.GONE
+                    pointerView.visibility = View.VISIBLE
+                }
+            }
+
+            MapScreenState.Loading ->
+                with(binding) {
+                    mapProgressBar.visibility = View.VISIBLE
+                    pointerView.visibility = View.GONE
+                }
+
+            MapScreenState.Error -> showErrorToast()
+        }
+    }
+
+    private fun showErrorToast() {
+        Toast.makeText(requireContext(), R.string.error_toast, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun manageSpotsDrawing(listOfPlaces: List<Place>) {
+        if (listOfPlaces.isEmpty()) {
+            clearMapFromAllObjects()
+            return
+        }
+
+        listOfPlaces.forEach { place ->
+            val tempPoint = Point(place.lat, place.lon)
+            addPlaceMarkOnMap(tempPoint)
+        }
+    }
+
+    private fun moveMapCamera(point: Point) {
+        binding.yandexMapsView.map.move(
+            CameraPosition(
+                point, INITIAL_ZOOM_VALUE, 0.0f, 0.0f
+            ), Animation(Animation.Type.SMOOTH, MAP_MOVEMENT_DURATION_LONG), null
+        )
+    }
+
+    private fun zoomMapCamera(zoomValue: Float) {
+        binding.yandexMapsView.map.move(
+            CameraPosition(
+                createWorldPointInCenter(), zoomValue, 0.0f, 0.0f
+            ), Animation(Animation.Type.SMOOTH, MAP_MOVEMENT_DURATION_SHORT), null
+        )
+    }
+
+    private fun zoomIn() {
+        if (currentZoomValue >= binding.yandexMapsView.map.maxZoom) return
+
+        currentZoomValue += 1.0f
+        zoomMapCamera(currentZoomValue)
+    }
+
+    private fun zoomOut() {
+        if (currentZoomValue <= binding.yandexMapsView.map.minZoom) return
+
+        currentZoomValue -= 1.0f
+        zoomMapCamera(currentZoomValue)
     }
 
     override fun onStop() {
@@ -175,6 +275,13 @@ class MapFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        const val MAP_MOVEMENT_DURATION_LONG = 3f
+        const val MAP_MOVEMENT_DURATION_SHORT = 0.5f
+        const val INITIAL_ZOOM_VALUE = 14.0f
+        const val PLACE_ID = "placeId"
     }
 }
 
