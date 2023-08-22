@@ -1,10 +1,12 @@
 package com.example.pocketmap.presentation.map.ui
 
-import android.os.Build
+import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -15,6 +17,7 @@ import com.example.pocketmap.domain.models.Place
 import com.example.pocketmap.presentation.map.models.MapScreenState
 import com.example.pocketmap.presentation.map.view_model.MapViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.ScreenPoint
@@ -22,6 +25,7 @@ import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.runtime.image.ImageProvider
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.*
 
 
 class MapFragment : Fragment() {
@@ -52,6 +56,7 @@ class MapFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         MapKitFactory.initialize(requireContext().applicationContext)
 
@@ -133,8 +138,8 @@ class MapFragment : Fragment() {
         val latitudeEditText: TextView = dialogView.findViewById(R.id.edit_latitude)
         val longitudeEditText: TextView = dialogView.findViewById(R.id.edit_longitude)
 
-        latitudeEditText.text = String.format("%.4f", newPoint.latitude)
-        longitudeEditText.text = String.format("%.4f", newPoint.longitude)
+        latitudeEditText.text = String.format(Locale.US, "%.4f", newPoint.latitude)
+        longitudeEditText.text = String.format(Locale.US, "%.4f", newPoint.longitude)
 
         return dialogView
     }
@@ -175,17 +180,30 @@ class MapFragment : Fragment() {
                 val longitudeEditText: TextView = dialogView.findViewById(R.id.edit_longitude)
 
                 if (isDataInDialogEdited(latitudeEditText, longitudeEditText, newPoint)) {
-                    val newPointEdited = Point(
-                        latitudeEditText.text.toString().toDouble(),
-                        longitudeEditText.text.toString().toDouble()
-                    )
-                    val newPlaceEdited = Place(
-                        name = getString(R.string.place_name_text, listOfPlaces.size + 1),
-                        lat = newPointEdited.latitude,
-                        lon = newPointEdited.longitude
-                    )
-                    addPlaceMarkOnMap(newPointEdited)
-                    viewModel.addNewPlace(place = newPlaceEdited)
+
+                    if (latitudeEditText.text.toString().toDouble() !in (-90f..90f)
+                    ) {
+                        showWrongInputSnackbar(R.string.snackbar_message_latitude_text)
+
+                    } else if (longitudeEditText.text.toString().toDouble() !in (-180f..180f)
+                    ) {
+                        showWrongInputSnackbar(R.string.snackbar_message_longitude_text)
+
+                    } else {
+                        val newPointEdited = Point(
+                            latitudeEditText.text.toString().toDouble(),
+                            longitudeEditText.text.toString().toDouble()
+                        )
+                        val newPlaceEdited = Place(
+                            name = getString(R.string.place_name_text, listOfPlaces.size + 1),
+                            lat = newPointEdited.latitude,
+                            lon = newPointEdited.longitude
+                        )
+                        addPlaceMarkOnMap(newPointEdited)
+                        viewModel.addNewPlace(place = newPlaceEdited)
+                    }
+
+
                 } else {
                     addPlaceMarkOnMap(newPoint)
                     viewModel.addNewPlace(place = newPlace)
@@ -267,9 +285,25 @@ class MapFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-
         MapKitFactory.getInstance().onStart()
         binding.yandexMapsView.onStart()
+    }
+
+    private fun hideKeyboard() {
+        val inputMethodManager =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(binding.mapsConstraintLayout.windowToken, 0)
+    }
+
+    private fun showWrongInputSnackbar(stringId: Int) {
+        hideKeyboard()
+        Snackbar.make(
+            binding.mapsConstraintLayout,
+            stringId,
+            TOAST_DURATION
+        ).setAction(R.string.snack_bar_action_text) {
+            showSaveNewPlaceConfirmationDialog()
+        }.setActionTextColor(Color.parseColor("#9CE1FF")).show()
     }
 
     override fun onDestroyView() {
@@ -282,6 +316,7 @@ class MapFragment : Fragment() {
         const val MAP_MOVEMENT_DURATION_SHORT = 0.5f
         const val INITIAL_ZOOM_VALUE = 14.0f
         const val PLACE_ID = "placeId"
+        const val TOAST_DURATION = 8000
     }
 }
 

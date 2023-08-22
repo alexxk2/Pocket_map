@@ -1,13 +1,12 @@
 package com.example.pocketmap.presentation.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.pocketmap.R
 import com.example.pocketmap.databinding.ActivityMainBinding
-import com.yandex.mapkit.MapKitFactory
 
 
 class MainActivity : AppCompatActivity() {
@@ -18,7 +17,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        MapKitFactory.setApiKey(com.example.pocketmap.BuildConfig.MAPKIT_API_KEY)
+
 
 
         binding = ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
